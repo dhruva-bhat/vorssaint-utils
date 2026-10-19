@@ -265,6 +265,7 @@ struct NotchFilesView: View {
         case .gifMaker: return l10n.s.mediaToolGIF
         case .imageCompressor: return l10n.s.mediaToolImage
         case .textExtractor: return l10n.s.mediaToolText
+        case .pdfMerger: return l10n.s.mediaToolPDF
         }
     }
 

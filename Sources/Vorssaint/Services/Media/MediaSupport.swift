@@ -8,9 +8,37 @@ import ImageIO
 import UniformTypeIdentifiers
 
 enum MediaTool: String, CaseIterable, Identifiable {
-    case videoCompressor, gifMaker, imageCompressor, textExtractor
+    case videoCompressor, gifMaker, imageCompressor, textExtractor, pdfMerger
 
     var id: String { rawValue }
+
+    /// Tools that work on a list of files; the others take the first one only.
+    var acceptsMultipleInputs: Bool {
+        self == .imageCompressor || self == .pdfMerger
+    }
+
+    /// How many inputs the tool needs before it can run.
+    var minimumInputs: Int {
+        self == .pdfMerger ? 2 : 1
+    }
+
+    /// The files this tool works on. Drops, the open panel, the Notch and tool switches all
+    /// filter with this list.
+    var inputTypes: [UTType] {
+        switch self {
+        case .videoCompressor, .gifMaker: return [.movie, .video, .mpeg4Movie, .quickTimeMovie]
+        case .imageCompressor, .textExtractor: return [.image]
+        case .pdfMerger: return [.pdf, .image]
+        }
+    }
+
+    /// The current inputs this tool can use, in order, when the person switches to it.
+    /// A PDF collected for merging must not carry into the image tool, where ImageIO
+    /// would open it and silently rasterize page one.
+    func usableInputs(_ urls: [URL]) -> [URL] {
+        urls.filter { MediaSupport.inputMatchesTool(contentType: MediaSupport.contentType(of: $0),
+                                                    inputTypes: inputTypes) }
+    }
 }
 
 /// A cancelled duration lookup remains resumable, while a successful lookup
@@ -875,6 +903,27 @@ enum MediaSupport {
     /// Whether a dropped file fits the selected tool, mirroring the open
     /// panel's filter. Without this, dropping a PDF on the image tool would
     /// "succeed" by silently rasterizing page one (ImageIO opens PDFs).
+    static func contentType(of url: URL) -> UTType? {
+        (try? url.resourceValues(forKeys: [.contentTypeKey]))?.contentType
+            ?? UTType(filenameExtension: url.pathExtension)
+    }
+
+    /// Re-encodes `image` as JPEG and returns an image backed by that data. Drawing it into
+    /// a PDF context embeds the compressed JPEG instead of raw pixels, which keeps image
+    /// pages close to their source size.
+    static func jpegBackedImage(_ image: CGImage, quality: Double) -> CGImage? {
+        let jpegData = NSMutableData()
+        guard let encoder = CGImageDestinationCreateWithData(jpegData, UTType.jpeg.identifier as CFString, 1, nil) else {
+            return nil
+        }
+        CGImageDestinationAddImage(encoder, image, [
+            kCGImageDestinationLossyCompressionQuality: quality,
+        ] as CFDictionary)
+        guard CGImageDestinationFinalize(encoder),
+              let encodedSource = CGImageSourceCreateWithData(jpegData, nil) else { return nil }
+        return CGImageSourceCreateImageAtIndex(encodedSource, 0, nil)
+    }
+
     static func inputMatchesTool(contentType: UTType?, inputTypes: [UTType]) -> Bool {
         guard let contentType else { return false }
         return inputTypes.contains { contentType.conforms(to: $0) }
