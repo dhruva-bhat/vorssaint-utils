@@ -18,6 +18,10 @@ enum NotchFileToolsSupport {
     static func optimizationTool(for urls: [URL]) -> MediaTool? {
         if accepts(urls, for: .imageCompressor) { return .imageCompressor }
         if accepts(urls, for: .videoCompressor) { return .videoCompressor }
+        // PDFs, alone or with images, have one tool: merging, which needs two or more inputs.
+        // A lone PDF still goes to the shelf. Images alone keep the image tool, and the
+        // workspace's tool picker reaches Text and PDF from there, as it reaches GIF from video.
+        if accepts(urls, for: .pdfMerger) { return .pdfMerger }
         return nil
     }
 
