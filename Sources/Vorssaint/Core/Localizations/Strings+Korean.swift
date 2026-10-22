@@ -495,7 +495,7 @@ extension Strings {
         mediaMergeOrderCaption: "파일은 위에서 아래 순서로 병합됩니다. 드래그해 순서를 바꾸거나, 파일을 선택하고 스페이스 바를 눌러 미리 볼 수 있습니다.",
         mediaMergeNeedsTwo: "병합하려면 PDF나 이미지를 두 개 이상 추가하세요.",
         mediaErrorPasswordProtectedFormat: "“%@”이(가) 암호로 보호되어 있습니다. 미리보기에서 잠금을 해제한 후 다시 시도하세요.",
-        mediaErrorRestrictedPDFFormat: "“%@”은(는) 페이지 복사를 허용하지 않아 병합할 수 없습니다.",
+        mediaErrorRestrictedPDFFormat: "“%@”에는 소유자가 설정한 제한이 있어 병합할 수 없습니다.",
         mediaErrorUnreadableFormat: "“%@”을(를) PDF나 이미지로 읽을 수 없습니다.",
         mediaCancel: "취소",
         mediaStartTime: "시작",

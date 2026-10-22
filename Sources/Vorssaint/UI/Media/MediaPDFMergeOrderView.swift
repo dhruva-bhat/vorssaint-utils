@@ -44,28 +44,31 @@ struct MediaPDFMergeOrderView: View {
                 .help(previewHelp)
             }
 
-            List(selection: $selection) {
-                ForEach(Array(urls.enumerated()), id: \.element) { index, url in
-                    row(url, position: index)
-                        .tag(url)
+            // The compact Notch has no room for both, so there the preview takes the list's place.
+            if !(compact && showsPreview) {
+                List(selection: $selection) {
+                    ForEach(Array(urls.enumerated()), id: \.element) { index, url in
+                        row(url, position: index)
+                            .tag(url)
+                    }
+                    .onMove { source, destination in
+                        guard !isDisabled else { return }
+                        urls.move(fromOffsets: source, toOffset: destination)
+                    }
                 }
-                .onMove { source, destination in
-                    guard !isDisabled else { return }
-                    urls.move(fromOffsets: source, toOffset: destination)
+                .listStyle(.bordered(alternatesRowBackgrounds: true))
+                .frame(height: listHeight)
+                .disabled(isDisabled)
+                .onKeyPress(.space) {
+                    guard selection != nil else { return .ignored }
+                    isPreviewing.toggle()
+                    return .handled
                 }
-            }
-            .listStyle(.bordered(alternatesRowBackgrounds: true))
-            .frame(height: min(CGFloat(max(urls.count, 2)) * (compact ? 30 : 36) + 8, compact ? 160 : 220))
-            .disabled(isDisabled)
-            .onKeyPress(.space) {
-                guard selection != nil else { return .ignored }
-                isPreviewing.toggle()
-                return .handled
             }
 
-            if isPreviewing, let selection, urls.contains(selection) {
+            if showsPreview, let selection {
                 QuickLookPreview(url: selection)
-                    .frame(height: compact ? 220 : 320)
+                    .frame(height: compact ? listHeight : 320)
                     .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
             }
         }
@@ -73,6 +76,14 @@ struct MediaPDFMergeOrderView: View {
         .onChange(of: urls) { _, newURLs in
             if let selection, !newURLs.contains(selection) { self.selection = nil; isPreviewing = false }
         }
+    }
+
+    private var listHeight: CGFloat {
+        min(CGFloat(max(urls.count, 2)) * (compact ? 30 : 36) + 8, compact ? 160 : 220)
+    }
+
+    private var showsPreview: Bool {
+        isPreviewing && selection.map(urls.contains) == true
     }
 
     private func row(_ url: URL, position: Int) -> some View {
@@ -103,10 +114,10 @@ struct MediaPDFMergeOrderView: View {
             }
             Spacer(minLength: 4)
             moveButton("chevron.up", help: moveUpHelp, enabled: position > 0) {
-                urls = MediaPDFMerger.moving(urls, from: position, to: position - 1)
+                urls.move(fromOffsets: [position], toOffset: position - 1)
             }
             moveButton("chevron.down", help: moveDownHelp, enabled: position < urls.count - 1) {
-                urls = MediaPDFMerger.moving(urls, from: position, to: position + 1)
+                urls.move(fromOffsets: [position], toOffset: position + 2)
             }
         }
         .padding(.vertical, 1)

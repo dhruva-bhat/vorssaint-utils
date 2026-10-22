@@ -16,7 +16,7 @@ enum MediaPDFMerger {
     enum Failure: Error, Equatable {
         case unreadable(URL)
         case passwordProtected(URL)
-        /// Opens without a password, but its owner disallowed copying its content.
+        /// Opens without a password, but its owner restricted it (copying, printing, changes…).
         case restricted(URL)
         case imageTooLarge(URL)
         case cancelled
@@ -42,15 +42,6 @@ enum MediaPDFMerger {
             result.append(url)
         }
         return result
-    }
-
-    /// Moves one input, clamping the destination; an out-of-range source is a no-op.
-    static func moving(_ urls: [URL], from source: Int, to destination: Int) -> [URL] {
-        guard urls.indices.contains(source) else { return urls }
-        var copy = urls
-        let url = copy.remove(at: source)
-        copy.insert(url, at: min(max(destination, 0), copy.count))
-        return copy
     }
 
     static func canMerge(_ urls: [URL]) -> Bool {
@@ -79,7 +70,9 @@ enum MediaPDFMerger {
             if isPDF(url) {
                 guard let pdf = PDFDocument(url: url) else { throw Failure.unreadable(url) }
                 guard !pdf.isLocked else { throw Failure.passwordProtected(url) }
-                guard !pdf.isEncrypted || pdf.allowsCopying else { throw Failure.restricted(url) }
+                // The merged file carries no permissions, so merging a restricted PDF would
+                // quietly lift every restriction its owner set. Refuse it instead.
+                guard !isRestricted(pdf) else { throw Failure.restricted(url) }
                 document = pdf
             } else {
                 document = try imagePage(url)
@@ -135,6 +128,11 @@ enum MediaPDFMerger {
             throw Failure.unreadable(url)
         }
         return page
+    }
+
+    static func isRestricted(_ pdf: PDFDocument) -> Bool {
+        pdf.isEncrypted && !(pdf.allowsCopying && pdf.allowsPrinting && pdf.allowsDocumentChanges
+                             && pdf.allowsDocumentAssembly && pdf.allowsCommenting && pdf.allowsFormFieldEntry)
     }
 
     private static func isPDF(_ url: URL) -> Bool {

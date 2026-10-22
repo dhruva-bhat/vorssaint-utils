@@ -495,7 +495,7 @@ extension Strings {
         mediaMergeOrderCaption: "檔案會按由上至下的次序合併。拖移可調整次序，選取檔案後按空白鍵即可預覽。",
         mediaMergeNeedsTwo: "請至少加入兩個 PDF 或影像以進行合併。",
         mediaErrorPasswordProtectedFormat: "「%@」受密碼保護。請先在「預覽程式」中解鎖，然後再試一次。",
-        mediaErrorRestrictedPDFFormat: "「%@」不允許拷貝其頁面，因此無法合併。",
+        mediaErrorRestrictedPDFFormat: "「%@」設有擁有者限制，因此無法合併。",
         mediaErrorUnreadableFormat: "無法將「%@」讀取為 PDF 或影像。",
         mediaCancel: "取消",
         mediaStartTime: "開始",

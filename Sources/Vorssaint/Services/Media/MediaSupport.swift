@@ -32,12 +32,29 @@ enum MediaTool: String, CaseIterable, Identifiable {
         }
     }
 
-    /// The current inputs this tool can use, in order, when the person switches to it.
-    /// A PDF collected for merging must not carry into the image tool, where ImageIO
-    /// would open it and silently rasterize page one.
+    /// The inputs this tool can use, in order. A PDF collected for merging must not reach the
+    /// image tool, where ImageIO would open it and silently rasterize page one.
     func usableInputs(_ urls: [URL]) -> [URL] {
         urls.filter { MediaSupport.inputMatchesTool(contentType: MediaSupport.contentType(of: $0),
                                                     inputTypes: inputTypes) }
+    }
+
+    /// The workspace's full input list after this tool's own inputs became `current`.
+    /// Files this tool can't use keep their places, so switching to a tool that can use them
+    /// brings them back; this tool's slots take `current` in order, and extra files are appended.
+    func updatingAllInputs(_ all: [URL], current: [URL]) -> [URL] {
+        var remaining = current[...]
+        let currentSet = Set(current)
+        var result: [URL] = []
+        for url in all {
+            if usableInputs([url]).isEmpty {
+                if !currentSet.contains(url) { result.append(url) }
+            } else if let next = remaining.popFirst() {
+                result.append(next)
+            }
+        }
+        result.append(contentsOf: remaining)
+        return result
     }
 }
 
@@ -900,12 +917,10 @@ enum MediaSupport {
         }
     }
 
-    /// Whether a dropped file fits the selected tool, mirroring the open
-    /// panel's filter. Without this, dropping a PDF on the image tool would
-    /// "succeed" by silently rasterizing page one (ImageIO opens PDFs).
+    /// The file's type as the file system reports it; nil for a missing or unreadable item,
+    /// which no tool then accepts.
     static func contentType(of url: URL) -> UTType? {
         (try? url.resourceValues(forKeys: [.contentTypeKey]))?.contentType
-            ?? UTType(filenameExtension: url.pathExtension)
     }
 
     /// Re-encodes `image` as JPEG and returns an image backed by that data. Drawing it into
@@ -924,6 +939,9 @@ enum MediaSupport {
         return CGImageSourceCreateImageAtIndex(encodedSource, 0, nil)
     }
 
+    /// Whether a dropped file fits the selected tool, mirroring the open
+    /// panel's filter. Without this, dropping a PDF on the image tool would
+    /// "succeed" by silently rasterizing page one (ImageIO opens PDFs).
     static func inputMatchesTool(contentType: UTType?, inputTypes: [UTType]) -> Bool {
         guard let contentType else { return false }
         return inputTypes.contains { contentType.conforms(to: $0) }

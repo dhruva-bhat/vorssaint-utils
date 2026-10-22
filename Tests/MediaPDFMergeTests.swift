@@ -22,14 +22,6 @@ enum MediaPDFMergeTests {
         suite.expect(MediaPDFMerger.defaultOrder(urls).map(\.lastPathComponent)
                == ["appendix.pdf", "Page 1.pdf", "page 2.pdf", "page 10.pdf"],
                "PDF merge starts in Finder's natural filename order, not plain string order")
-        let a = URL(fileURLWithPath: "/tmp/a.pdf"), b = URL(fileURLWithPath: "/tmp/b.pdf"),
-            c = URL(fileURLWithPath: "/tmp/c.pdf")
-        suite.expect(MediaPDFMerger.moving([a, b, c], from: 0, to: 2) == [b, c, a]
-               && MediaPDFMerger.moving([a, b, c], from: 2, to: 0) == [c, a, b],
-               "PDF merge order moves an input forward and back")
-        suite.expect(MediaPDFMerger.moving([a, b, c], from: 1, to: 99) == [a, c, b]
-               && MediaPDFMerger.moving([a, b, c], from: 7, to: 0) == [a, b, c],
-               "PDF merge order clamps the destination and ignores an invalid source")
     }
 
     private static func toolRules(_ suite: TestSuite) {
@@ -60,6 +52,27 @@ enum MediaPDFMergeTests {
                "Switching to PDF merge keeps PDFs and images in their order and drops other files")
         suite.expect(MediaTool.videoCompressor.usableInputs([png, pdf]).isEmpty,
                "Switching to a video tool keeps no image or PDF inputs")
+
+        let photos = (1...3).map { makePNG(in: dir, name: "photo\($0).png", width: 4, height: 4) }
+        // Image (3 photos) → Video → Image: the photos come back.
+        var all = MediaTool.imageCompressor.updatingAllInputs([], current: photos)
+        let videoInputs = MediaTool.videoCompressor.usableInputs(all)
+        all = MediaTool.videoCompressor.updatingAllInputs(all, current: videoInputs)
+        suite.expect(videoInputs.isEmpty && MediaTool.imageCompressor.usableInputs(all) == photos,
+               "Switching away from the image tool and back restores its files")
+        // PDF [pdf, png, otherPDF] → Image (sees png only) → PDF: the PDFs return in their places.
+        all = MediaTool.pdfMerger.updatingAllInputs([], current: [pdf, png, otherPDF])
+        let imageInputs = MediaTool.imageCompressor.usableInputs(all)
+        all = MediaTool.imageCompressor.updatingAllInputs(all, current: imageInputs)
+        suite.expect(imageInputs == [png] && MediaTool.pdfMerger.usableInputs(all) == [pdf, png, otherPDF],
+               "Switching from PDF merge to the image tool and back keeps the merge list and its order")
+        // A reorder in the merge tool is what the next switch remembers.
+        all = MediaTool.pdfMerger.updatingAllInputs(all, current: [otherPDF, pdf, png])
+        suite.expect(all == [otherPDF, pdf, png],
+               "The merge order the person set is kept across tool switches")
+        suite.expect(MediaTool.imageCompressor.updatingAllInputs([pdf, png], current: [png, photos[0]])
+               == [pdf, png, photos[0]],
+               "Files added under one tool join the list without dropping set-aside files")
 
         suite.expect(MediaPDFMerger.appending([png, pdf], to: [otherPDF, pdf]) == [otherPDF, pdf, png],
                "Adding files to a merge appends new ones in drop order and never duplicates an existing one")
@@ -147,6 +160,17 @@ enum MediaPDFMergeTests {
         suite.expect(restrictedError == .restricted(restricted),
                "A PDF whose owner disallowed copying is refused instead of having its restrictions stripped")
 
+        // Copying allowed, printing not: merging would still lift the print restriction.
+        let noPrint = makeRestrictedPDF(in: dir, name: "no-print.pdf", allowsCopying: true, allowsPrinting: false)
+        var noPrintError: MediaPDFMerger.Failure?
+        do {
+            try MediaPDFMerger.merge([first, noPrint], to: dir.appendingPathComponent("no-print-out.pdf"))
+        } catch let failure as MediaPDFMerger.Failure {
+            noPrintError = failure
+        } catch {}
+        suite.expect(noPrintError == .restricted(noPrint),
+               "A PDF with any owner restriction, not only copying, is refused")
+
         let broken = dir.appendingPathComponent("broken.png")
         try? Data("not an image".utf8).write(to: broken)
         var brokenError: MediaPDFMerger.Failure?
@@ -193,12 +217,14 @@ enum MediaPDFMergeTests {
         return url
     }
 
-    private static func makeRestrictedPDF(in dir: URL, name: String) -> URL {
+    private static func makeRestrictedPDF(in dir: URL, name: String,
+                                          allowsCopying: Bool = false, allowsPrinting: Bool = true) -> URL {
         let url = dir.appendingPathComponent(name)
         var box = CGRect(x: 0, y: 0, width: 100, height: 100)
-        // Opens without a password, but the owner disallowed copying.
+        // Opens without a password, but the owner restricted it.
         let options: [CFString: Any] = [kCGPDFContextUserPassword: "", kCGPDFContextOwnerPassword: "owner",
-                                        kCGPDFContextAllowsCopying: false]
+                                        kCGPDFContextAllowsCopying: allowsCopying,
+                                        kCGPDFContextAllowsPrinting: allowsPrinting]
         guard let context = CGContext(url as CFURL, mediaBox: &box, options as CFDictionary) else { return url }
         context.beginPDFPage(nil); context.endPDFPage()
         context.closePDF()

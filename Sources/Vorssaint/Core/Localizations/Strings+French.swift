@@ -494,7 +494,7 @@ extension Strings {
         mediaMergeOrderCaption: "Les fichiers sont fusionnés de haut en bas. Faites glisser pour réorganiser, ou sélectionnez-en un et appuyez sur Espace pour l’aperçu.",
         mediaMergeNeedsTwo: "Ajoutez au moins deux PDF ou images à fusionner.",
         mediaErrorPasswordProtectedFormat: "« %@ » est protégé par mot de passe. Déverrouillez-le dans Aperçu, puis réessayez.",
-        mediaErrorRestrictedPDFFormat: "« %@ » n’autorise pas la copie de ses pages et ne peut donc pas être fusionné.",
+        mediaErrorRestrictedPDFFormat: "« %@ » comporte des restrictions définies par son propriétaire et ne peut donc pas être fusionné.",
         mediaErrorUnreadableFormat: "Impossible de lire « %@ » comme PDF ou image.",
         mediaCancel: "Annuler",
         mediaStartTime: "Début",

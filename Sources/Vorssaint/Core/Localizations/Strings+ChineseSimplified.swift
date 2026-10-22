@@ -494,7 +494,7 @@ extension Strings {
         mediaMergeOrderCaption: "文件按从上到下的顺序合并。拖移可调整顺序，选中文件后按空格键可预览。",
         mediaMergeNeedsTwo: "请至少添加两个 PDF 或图像以进行合并。",
         mediaErrorPasswordProtectedFormat: "“%@”受密码保护。请先在“预览”中解锁，然后重试。",
-        mediaErrorRestrictedPDFFormat: "“%@”不允许复制其页面，因此无法合并。",
+        mediaErrorRestrictedPDFFormat: "“%@”设有所有者限制，因此无法合并。",
         mediaErrorUnreadableFormat: "无法将“%@”读取为 PDF 或图像。",
         mediaCancel: "取消",
         mediaStartTime: "开始",

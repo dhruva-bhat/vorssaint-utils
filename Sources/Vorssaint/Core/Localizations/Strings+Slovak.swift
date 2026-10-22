@@ -494,7 +494,7 @@ extension Strings {
         mediaMergeOrderCaption: "Súbory sa zlúčia zhora nadol. Presunutím zmeníte poradie, alebo vyberte súbor a stlačením medzerníka zobrazíte náhľad.",
         mediaMergeNeedsTwo: "Na zlúčenie pridajte aspoň dva súbory PDF alebo obrázky.",
         mediaErrorPasswordProtectedFormat: "„%@“ je chránený heslom. Odomknite ho v aplikácii Náhľad a skúste to znova.",
-        mediaErrorRestrictedPDFFormat: "„%@“ nepovoľuje kopírovanie strán, preto ho nemožno zlúčiť.",
+        mediaErrorRestrictedPDFFormat: "„%@“ má obmedzenia nastavené vlastníkom, preto ho nemožno zlúčiť.",
         mediaErrorUnreadableFormat: "„%@“ sa nepodarilo načítať ako PDF ani obrázok.",
         mediaCancel: "Zrušiť",
         mediaStartTime: "Začiatok",

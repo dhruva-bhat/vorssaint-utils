@@ -494,7 +494,7 @@ extension Strings {
         mediaMergeOrderCaption: "Dosyalar yukarıdan aşağıya birleştirilir. Sıralamak için sürükle veya önizlemek için birini seçip Boşluk’a bas.",
         mediaMergeNeedsTwo: "Birleştirmek için en az iki PDF veya görsel ekle.",
         mediaErrorPasswordProtectedFormat: "“%@” parola korumalı. Önizleme’de kilidini aç ve yeniden dene.",
-        mediaErrorRestrictedPDFFormat: "“%@” sayfalarının kopyalanmasına izin vermiyor, bu yüzden birleştirilemez.",
+        mediaErrorRestrictedPDFFormat: "“%@” sahibinin koyduğu kısıtlamalara sahip, bu yüzden birleştirilemez.",
         mediaErrorUnreadableFormat: "“%@” PDF veya görsel olarak okunamadı.",
         mediaCancel: "İptal",
         mediaStartTime: "Başlangıç",

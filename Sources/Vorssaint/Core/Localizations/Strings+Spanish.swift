@@ -494,7 +494,7 @@ extension Strings {
         mediaMergeOrderCaption: "Los archivos se combinan de arriba abajo. Arrastra para reordenar o selecciona uno y pulsa Espacio para previsualizarlo.",
         mediaMergeNeedsTwo: "Añade al menos dos PDF o imágenes para combinarlos.",
         mediaErrorPasswordProtectedFormat: "“%@” está protegido con contraseña. Desbloquéalo en Vista Previa y vuelve a intentarlo.",
-        mediaErrorRestrictedPDFFormat: "“%@” no permite copiar sus páginas, así que no se puede combinar.",
+        mediaErrorRestrictedPDFFormat: "“%@” tiene restricciones de su propietario, así que no se puede combinar.",
         mediaErrorUnreadableFormat: "No se pudo leer “%@” como PDF o imagen.",
         mediaCancel: "Cancelar",
         mediaStartTime: "Inicio",

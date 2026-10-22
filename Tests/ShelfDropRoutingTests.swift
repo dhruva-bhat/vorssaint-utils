@@ -60,6 +60,7 @@ enum ShelfDropRoutingContract {
         var heldDrag = true
         var dragPlaceholder = true
         var choosingFileDropDestination = false
+        var fileDropTool: MediaTool?
         var targetsMediaDrop = false
         var pinned = false
         var geometry = NotchGeometry(screen: CGRect(x: 0, y: 0, width: 1440, height: 900), safeAreaTop: 32, cameraWidth: 180)
@@ -81,6 +82,7 @@ enum ShelfDropRoutingContract {
         var mediaSession: NotchMediaSession?
         var mediaContentHeight: CGFloat?
         var mediaPresented = false
+        var presentedTool: MediaTool? { mediaPresented ? mediaSession?.tool : nil }
         var isRunning = false
         var acceptsMedia = true
         var inputs: [URL] = []
@@ -247,6 +249,29 @@ enum ShelfDropRoutingTests {
             board.writeObjects([image as NSURL, text])
             suite.expect(Context.NotchFileToolsService.shared.mediaDropContent(for: board) == nil,
                    "a text companion prevents partial optimization of a mixed drag")
+
+            // An open merge list in the island takes more files, even a single PDF.
+            reset()
+            let files = Context.NotchFileToolsService.shared
+            files.mediaSession = Context.NotchMediaSession(inputs: [pdf, secondPDF], tool: .pdfMerger)
+            files.mediaPresented = true
+            board.clearContents()
+            board.writeObjects([image as NSURL])
+            suite.expect(files.mediaDropContent(for: board)?.tool == .pdfMerger,
+                   "a single image dropped on an open merge list is added to it")
+            board.clearContents()
+            board.writeObjects([pdf as NSURL])
+            let merging = Context.Notch()
+            merging.beginFileDrop(board)
+            suite.expect(merging.choosingFileDropDestination && merging.fileDropTool == .pdfMerger,
+                   "a single PDF offers the open merge list, and the destination is named for merging")
+            merging.endFileDrop()
+            suite.expect(merging.fileDropTool == nil, "a finished drop forgets its tool")
+            board.clearContents()
+            board.writeObjects([video as NSURL])
+            suite.expect(files.mediaDropContent(for: board)?.tool == .videoCompressor,
+                   "a file the merge can't use keeps its own tool")
+            reset()
 
             for revoked in 0..<9 {
                 reset()

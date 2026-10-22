@@ -479,7 +479,7 @@ extension Strings {
         mediaMergeOrderCaption: "Файли об’єднуються згори донизу. Перетягніть, щоб змінити порядок, або виберіть файл і натисніть пробіл для перегляду.",
         mediaMergeNeedsTwo: "Додайте щонайменше два PDF-файли або зображення.",
         mediaErrorPasswordProtectedFormat: "«%@» захищено паролем. Зніміть захист у Перегляді й повторіть спробу.",
-        mediaErrorRestrictedPDFFormat: "«%@» забороняє копіювати сторінки, тому його не можна об’єднати.",
+        mediaErrorRestrictedPDFFormat: "«%@» обмежено власником, тому його не можна об’єднати.",
         mediaErrorUnreadableFormat: "Не вдалося прочитати «%@» як PDF або зображення.",
         mediaCancel: "Скасувати",
         mediaStartTime: "Початок",

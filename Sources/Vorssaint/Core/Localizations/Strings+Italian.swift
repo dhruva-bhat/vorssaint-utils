@@ -494,7 +494,7 @@ extension Strings {
         mediaMergeOrderCaption: "I file vengono uniti dall’alto verso il basso. Trascina per riordinare, oppure selezionane uno e premi Spazio per l’anteprima.",
         mediaMergeNeedsTwo: "Aggiungi almeno due PDF o immagini da unire.",
         mediaErrorPasswordProtectedFormat: "“%@” è protetto da password. Sbloccalo in Anteprima e riprova.",
-        mediaErrorRestrictedPDFFormat: "“%@” non consente di copiarne le pagine, quindi non può essere unito.",
+        mediaErrorRestrictedPDFFormat: "“%@” ha restrizioni impostate dal proprietario, quindi non può essere unito.",
         mediaErrorUnreadableFormat: "Impossibile leggere “%@” come PDF o immagine.",
         mediaCancel: "Annulla",
         mediaStartTime: "Inizio",

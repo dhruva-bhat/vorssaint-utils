@@ -152,6 +152,9 @@ private final class AsyncResultBox<T>: @unchecked Sendable {
 /// A workspace can outlive its visible panel while its requested export runs.
 final class MediaWorkspaceSelection: ObservableObject {
     @Published var inputURLs: [URL] = []
+    /// Every input the person added, including files the current tool can't use, so a tool
+    /// switch never discards them. `inputURLs` is the current tool's part of it.
+    var allInputs: [URL] = []
     @Published var inputImageSize: CGSize?
     @Published var outputURL: URL?
     @Published var outputWasChosenManually = false

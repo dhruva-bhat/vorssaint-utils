@@ -494,7 +494,7 @@ extension Strings {
         mediaMergeOrderCaption: "Dateien werden von oben nach unten zusammengeführt. Ziehe zum Umsortieren, oder wähle eine Datei aus und drücke die Leertaste für eine Vorschau.",
         mediaMergeNeedsTwo: "Füge mindestens zwei PDFs oder Bilder zum Zusammenführen hinzu.",
         mediaErrorPasswordProtectedFormat: "„%@“ ist passwortgeschützt. Entsperre es in Vorschau und versuche es erneut.",
-        mediaErrorRestrictedPDFFormat: "„%@“ erlaubt kein Kopieren seiner Seiten und kann daher nicht zusammengeführt werden.",
+        mediaErrorRestrictedPDFFormat: "„%@“ ist vom Eigentümer eingeschränkt und kann daher nicht zusammengeführt werden.",
         mediaErrorUnreadableFormat: "„%@“ konnte nicht als PDF oder Bild gelesen werden.",
         mediaCancel: "Abbrechen",
         mediaStartTime: "Start",
